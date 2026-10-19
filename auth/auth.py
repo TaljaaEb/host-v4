@@ -1,4 +1,3 @@
-# Eben Taljaard 
 import hashlib
 import logging
 import socket
