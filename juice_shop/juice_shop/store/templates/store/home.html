@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Juice Shop - Fresh Juices{% endblock %}
+
+{% block content %}
+
+<section class="hero bg-success text-white py-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">Fresh Squeezed, Daily Delivered</h1>
+        <p class="lead">Premium organic juices made from the finest fruits. Taste the difference.</p>
+        <a href="{% url 'store:product_list' %}" class="btn btn-light btn-lg mt-3">
+            Shop Now <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container text-center">
+        <h2>Logged in successfully as {{ user.username }}!</h2>
+        <p>Check your server terminal to see the session cookie value.</p>
+        <p><a href="{{ itemlines_url }}">View Dynamic Itemlines Endpoint</a></p>
+        <form action="{% url 'store:trigger_proc' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Trigger Background Processing</button>
+        </form>
+        {% if triggered %}
+            <p style="color: green; font-weight: bold;">[✓] Processing trigger signal sent to proc.py workers!</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Categories</h2>
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-md-4 col-lg-3">
+                <a href="{% url 'store:product_list_by_category' category.slug %}" class="text-decoration-none">
+                    <div class="card category-card h-100 border-0 shadow-sm">
+                        {% if category.image %}
+                        <img src="{{ category.image.url }}" class="card-img-top" alt="{{ category.name }}" style="height: 180px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                            <i class="bi bi-box-seam text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-dark">{{ category.name }}</h5>
+                            <p class="card-text text-muted small">{{ category.description|truncatewords:15 }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-emoji-frown display-1 text-muted"></i>
+                <p class="mt-3 text-muted">No categories yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Featured Products</h2>
+            <a href="{% url 'store:product_list' %}" class="btn btn-outline-success">View All</a>
+        </div>
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-md-6 col-lg-4 col-xl-3">
+                <div class="card product-card h-100 border-0 shadow-sm">
+                    <a href="{{ product.get_absolute_url }}">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 220px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 220px;">
+                            <i class="bi bi-cup-straw text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                        {% endif %}
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">
+                            <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                        </h5>
+                        <p class="card-text text-muted small flex-grow-1">{{ product.description|truncatewords:12 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="fs-5 fw-bold text-success">${{ product.price }}</span>
+                            <form action="{% url 'store:cart_add' product.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1">
+                                <input type="hidden" name="override" value="false">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="bi bi-cart-plus"></i> Add
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-emoji-frown display-1 text-muted"></i>
+                <p class="mt-3 text-muted">No products available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

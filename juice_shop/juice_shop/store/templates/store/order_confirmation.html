@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation - Juice Shop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success display-1"></i>
+                    </div>
+                    <h2>Order Confirmed!</h2>
+                    <p class="text-muted">Thank you for your purchase.</p>
+                    <div class="bg-light rounded p-3 mb-4">
+                        <p class="mb-1"><strong>Order #{{ order.id }}</strong></p>
+                        <p class="mb-0 text-muted small">{{ order.created|date:"F j, Y" }}</p>
+                    </div>
+                    <div class="text-start mb-4">
+                        <h5>Items Ordered</h5>
+                        <hr>
+                        {% for item in order.items.all %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>{{ item.product.name }} x{{ item.quantity }}</span>
+                            <span>${{ item.get_cost }}</span>
+                        </div>
+                        {% endfor %}
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total Paid</span>
+                            <span class="text-success">${{ order.get_total_cost }}</span>
+                        </div>
+                    </div>
+                    <a href="{% url 'store:product_list' %}" class="btn btn-success">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

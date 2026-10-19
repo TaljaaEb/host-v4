@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name|default:"All Products" }} - Juice Shop{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Categories</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'store:product_list' %}"
+                       class="list-group-item list-group-item-action {% if not category %}active{% endif %}">
+                        All Products
+                    </a>
+                    {% for c in categories %}
+                    <a href="{{ c.get_absolute_url }}"
+                       class="list-group-item list-group-item-action {% if category.slug == c.slug %}active{% endif %}">
+                        {{ c.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>{{ category.name|default:"All Products" }}</h2>
+                <span class="text-muted">{{ products|length }} product{{ products|length|pluralize }}</span>
+            </div>
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card product-card h-100 border-0 shadow-sm">
+                        <a href="{{ product.get_absolute_url }}">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-cup-straw text-muted" style="font-size: 3rem;"></i>
+                            </div>
+                            {% endif %}
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">
+                                <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                            </h5>
+                            <p class="card-text text-muted small flex-grow-1">{{ product.description|truncatewords:10 }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="fs-5 fw-bold text-success">${{ product.price }}</span>
+                                <form action="{% url 'store:cart_add' product.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <input type="hidden" name="override" value="false">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-emoji-frown display-1 text-muted"></i>
+                    <p class="mt-3 text-muted">No products found.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
