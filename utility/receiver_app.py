@@ -39,6 +39,31 @@ class TkinterReceiverApp:
         text_widget.insert(tk.END, message + "\n")
         text_widget.see(tk.END)
 
+# async def handle_client(reader, writer, app):
+#     app.client_counter += 1
+#     client_id = 1 if app.client_counter % 2 != 0 else 2
+#     target_text = app.text1 if client_id == 1 else app.text2
+
+#     app.append_text(
+#         target_text, f"--- Ingress Connected: Instance {client_id} ---"
+#     )
+
+#     try:
+#         while True:
+#             data = await reader.readline()
+#             if not data:
+#                 break
+#             line = data.decode("utf-8").strip()
+#             app.append_text(target_text, line)
+#     except Exception as e:
+#         app.append_text(target_text, f"Error: {e}")
+#     finally:
+#         writer.close()
+#         await writer.wait_closed()
+#         app.append_text(
+#             target_text, f"--- Ingress Disconnected: Instance {client_id} ---"
+#         )
+
 async def handle_client(reader, writer, app):
     app.client_counter += 1
     client_id = 1 if app.client_counter % 2 != 0 else 2
@@ -56,10 +81,15 @@ async def handle_client(reader, writer, app):
             line = data.decode("utf-8").strip()
             app.append_text(target_text, line)
     except Exception as e:
-        app.append_text(target_text, f"Error: {e}")
+        app.append_text(target_text, f"Read Error: {e}")
     finally:
-        writer.close()
-        await writer.wait_closed()
+        try:
+            writer.close()
+            await writer.wait_closed()
+        except (ConnectionResetError, OSError):
+            # Ignore peer resets during close teardown
+            pass
+        
         app.append_text(
             target_text, f"--- Ingress Disconnected: Instance {client_id} ---"
         )
