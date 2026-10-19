@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Juice Shop{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>My Profile</h2>
+    <div class="row g-4 mt-2">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-person"></i> Account Info</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Joined:</strong> {{ user.date_joined|date:"F j, Y" }}</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-heart"></i> Liked Products</h5>
+                </div>
+                <div class="card-body">
+                    {% if liked_products %}
+                    <div class="row g-2">
+                        {% for product in liked_products %}
+                        <div class="col-6">
+                            <a href="{{ product.get_absolute_url }}" class="text-decoration-none">
+                                <div class="d-flex align-items-center gap-2 p-2 border rounded">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="" style="width: 40px; height: 40px; object-fit: cover;" class="rounded">
+                                    {% endif %}
+                                    <span class="small text-dark">{{ product.name }}</span>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No liked products yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-box"></i> Order History</h5>
+                </div>
+                <div class="card-body">
+                    {% if orders %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Paid</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.created|date:"M d, Y" }}</td>
+                                    <td>${{ order.get_total_cost }}</td>
+                                    <td>
+                                        {% if order.paid %}
+                                        <span class="badge bg-success">Paid</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.paid %}
+                                        <a href="{% url 'store:order_confirmation' order.id %}" class="btn btn-sm btn-outline-success">View</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No orders yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
